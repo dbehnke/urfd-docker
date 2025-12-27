@@ -1,0 +1,39 @@
+services:
+  urfd:
+    build:
+      context: ../
+      dockerfile: urfd-docker/Dockerfile
+    image: urfd-combined
+    container_name: urfd
+    command: urfd
+    network_mode: host
+    volumes:
+      - ./config:/usr/local/etc/urfd:ro
+      - urfd_logs:/var/log/urfd
+    restart: unless-stopped
+
+  tcd:
+    image: urfd-combined
+    container_name: tcd
+    command: tcd
+    network_mode: host
+    depends_on:
+      - urfd
+    volumes:
+      - ./config:/usr/local/etc/tcd:ro
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ../urfd-nng-dashboard
+    ports:
+      - "8080:8080"
+    environment:
+      - URFD_HOST=localhost
+      # NNG port matching urfd config
+    depends_on:
+      - urfd
+    restart: unless-stopped
+
+volumes:
+  urfd_logs:
