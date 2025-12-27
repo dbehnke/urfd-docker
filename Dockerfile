@@ -79,11 +79,20 @@ WORKDIR /build/urfd/reflector
 COPY urfd.mk /build/urfd/reflector/urfd.mk
 RUN make clean && make
 
+# Stage: frontend-builder
+FROM oven/bun:1 AS frontend-builder
+WORKDIR /app
+COPY urfd-nng-dashboard/web ./web
+WORKDIR /app/web
+RUN bun install && bun run build
+
 # Stage: dashboard-builder
 FROM base-dev AS dashboard-builder
 WORKDIR /build/urfd-nng-dashboard
 COPY urfd-nng-dashboard /build/urfd-nng-dashboard
 WORKDIR /build/urfd-nng-dashboard
+# Copy built frontend assets to the expected location for embedding
+COPY --from=frontend-builder /app/web/dist internal/assets/dist
 RUN go build -o dashboard cmd/dashboard/main.go
 # Stage: final
 FROM ubuntu:24.04
