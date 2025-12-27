@@ -1,1 +1,1 @@
-DHT=true
+DHT=false
