@@ -1,8 +1,8 @@
 services:
   urfd:
     build:
-      context: ../
-      dockerfile: urfd-docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     image: urfd-combined
     container_name: urfd
     command: urfd
@@ -24,13 +24,12 @@ services:
     restart: unless-stopped
 
   dashboard:
-    build:
-      context: ../urfd-nng-dashboard
-    ports:
-      - "8080:8080"
+    image: urfd-combined
+    container_name: dashboard
+    command: dashboard
+    network_mode: host
     environment:
       - URFD_HOST=localhost
-      # NNG port matching urfd config
     depends_on:
       - urfd
     restart: unless-stopped

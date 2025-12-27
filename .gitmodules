@@ -1,0 +1,18 @@
+[submodule "urfd"]
+	path = urfd
+	url = git@github.com:dbehnke/urfd.git
+	branch = tcd-nng
+[submodule "tcd"]
+	path = tcd
+	url = git@github.com:dbehnke/tcd.git
+	branch = tcd-nng
+[submodule "imbe_vocoder"]
+	path = imbe_vocoder
+	url = https://github.com/nostar/imbe_vocoder.git
+[submodule "md380_vocoder_dynarmic"]
+	path = md380_vocoder_dynarmic
+	url = https://github.com/nostar/md380_vocoder_dynarmic.git
+[submodule "urfd-nng-dashboard"]
+	path = urfd-nng-dashboard
+	url = git@github.com:dbehnke/urfd-nng-dashboard.git
+	branch = main

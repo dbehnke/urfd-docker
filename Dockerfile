@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     libfmt-dev \
     unzip \
     python3 \
+    golang-go \
+    wget \
+    xxd \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -36,7 +39,7 @@ WORKDIR /build/md380_vocoder_dynarmic
 RUN rm -rf build && mkdir build
 WORKDIR /build/md380_vocoder_dynarmic/build
 # History shows cmake usage and potentially makelib.sh
-RUN cmake .. && make && (../makelib.sh || true) \
+RUN cmake .. && make && bash -x ../makelib.sh \
     && cp libmd380_vocoder.a /usr/local/lib/ \
     && cp ../md380_vocoder.h /usr/local/include/
 
@@ -48,7 +51,7 @@ WORKDIR /build/tcd
 COPY tcd /build/tcd
 
 # Copy configuration to root as expected by Makefile
-COPY urfd-docker/tcd.mk /build/tcd/tcd.mk
+COPY tcd.mk /build/tcd/tcd.mk
 
 # Copy urfd source to resolve symlinks (e.g. TCPacketDef.h)
 COPY urfd /build/urfd
@@ -73,8 +76,15 @@ WORKDIR /build/urfd
 
 COPY urfd /build/urfd
 WORKDIR /build/urfd/reflector
+COPY urfd.mk /build/urfd/reflector/urfd.mk
 RUN make clean && make
 
+# Stage: dashboard-builder
+FROM base-dev AS dashboard-builder
+WORKDIR /build/urfd-nng-dashboard
+COPY urfd-nng-dashboard /build/urfd-nng-dashboard
+WORKDIR /build/urfd-nng-dashboard
+RUN go build -o dashboard cmd/dashboard/main.go
 # Stage: final
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
@@ -94,9 +104,10 @@ COPY --from=urfd-builder /build/urfd/reflector/urfd .
 COPY --from=urfd-builder /build/urfd/reflector/inicheck .
 COPY --from=urfd-builder /build/urfd/reflector/dbutil .
 COPY --from=urfd-builder /build/urfd/radmin .
+COPY --from=dashboard-builder /build/urfd-nng-dashboard/dashboard .
 
 # Ensure they are executable
-RUN chmod +x tcd urfd inicheck dbutil radmin
+RUN chmod +x tcd urfd inicheck dbutil radmin dashboard
 
 # No entrypoint, default CMD
 CMD ["/bin/bash"]

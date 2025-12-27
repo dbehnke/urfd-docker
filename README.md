@@ -10,6 +10,7 @@ This repository provides a multi-stage Dockerfile that compiles and packages:
 2. **md380_vocoder_dynarmic** (software AMBE vocoder emulator)
 3. **tcd** (Transcoder)
 4. **urfd** (Universal Reflector)
+5. **urfd-nng-dashboard** (Web Dashboard)
 
 The final image is based on Ubuntu 24.04 and includes all necessary runtime dependencies (`libnng`, `libcurl`, `OpenDHT`, etc.).
 
@@ -21,28 +22,42 @@ The final image is based on Ubuntu 24.04 and includes all necessary runtime depe
 
 ## Directory Structure
 
-This `urfd-docker` directory is expected to be a sibling to the source directories.
+This repository uses git submodules for `urfd`, `tcd`, and vocoders.
 
 ```text
-urfd-dev/
-├── imbe_vocoder/
-├── md380_vocoder_dynarmic/
-├── tcd/
-├── urfd/
-└── urfd-docker/       <-- You are here
-    ├── Dockerfile
-    ├── docker-compose.yml
-    ├── tcd.mk
-    └── README.md
+urfd-docker/           <-- You are here
+├── imbe_vocoder/      (submodule)
+├── md380_vocoder_dynarmic/ (submodule)
+├── tcd/               (submodule)
+├── urfd/              (submodule)
+├── urfd-nng-dashboard/ (submodule)
+├── Dockerfile
+├── docker-compose.yml
+├── tcd.mk
+└── README.md
+```
+
+## Setup
+
+When cloning this repository, ensure you initialize submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/dbehnke/urfd-docker.git
+cd urfd-docker
+```
+
+Or if already cloned:
+
+```bash
+git submodule update --init --recursive
 ```
 
 ## Building the Image
 
-Because the build requires context from the sibling directories (urfd, tcd, vocoders), you must run the build command from the **parent directory** (`urfd-dev`).
+Build the image from the **urfd-docker directory**:
 
 ```bash
-# From urfd-dev/
-docker build -f urfd-docker/Dockerfile -t urfd-combined .
+docker build -t urfd-combined .
 ```
 
 ## Running the Stack
