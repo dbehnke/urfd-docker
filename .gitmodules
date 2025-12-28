@@ -1,7 +1,7 @@
 [submodule "urfd"]
 	path = urfd
 	url = git@github.com:dbehnke/urfd.git
-	branch = tcd-nng
+	branch = dev
 [submodule "tcd"]
 	path = tcd
 	url = git@github.com:dbehnke/tcd.git
