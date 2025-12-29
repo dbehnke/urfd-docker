@@ -10,6 +10,7 @@ services:
     volumes:
       - ./config:/usr/local/etc/urfd:ro
       - urfd_logs:/var/log/urfd
+      - urfd_audio:/usr/local/bin/audio
     restart: unless-stopped
 
   tcd:
@@ -30,9 +31,13 @@ services:
     network_mode: host
     environment:
       - URFD_HOST=localhost
+      - URFD_AUDIO_PATH=/usr/local/bin/audio
     depends_on:
       - urfd
+    volumes:
+      - urfd_audio:/usr/local/bin/audio
     restart: unless-stopped
 
 volumes:
   urfd_logs:
+  urfd_audio:
