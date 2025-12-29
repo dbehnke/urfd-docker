@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     libboost-all-dev \
     nlohmann-json3-dev \
     libfmt-dev \
+    libopus-dev \
+    libogg-dev \
     unzip \
     python3 \
     golang-go \
@@ -102,6 +104,8 @@ RUN apt-get update && apt-get install -y \
     libnng1 \
     libcurl3t64-gnutls \
     libopendht-dev \
+    libopus0 \
+    libogg0 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
