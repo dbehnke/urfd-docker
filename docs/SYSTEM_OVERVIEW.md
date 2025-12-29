@@ -24,6 +24,8 @@ URFD acts as a **Universal Translator and Meeting Point**.
 * **Transcoding**: It converts audio in real-time (e.g., Codec2 <-> AMBE).
 * **Unified Dashboard**: It provides a single view of all activity, regardless of the source mode.
 
+<!-- break list -->
+
 ```mermaid
 graph LR
     subgraph Fragmented Islands
@@ -62,6 +64,8 @@ They communicate via:
 * **NNG (Nanomsg Next Gen)**: IPC/TCP messaging for events (Hearings, Closings).
 * **UDP / Host Networking**: Radio packet exchange and transcoding data.
 * **Shared Volume**: Access to recorded audio files.
+
+<!-- break list -->
 
 ```mermaid
 graph TD
@@ -111,6 +115,8 @@ graph TD
 * **PacketStream**: Manages the buffer of packets for a specific transmission.
 * **AudioRecorder**: Captures decoded/transcoded audio and writes to disk.
 
+<!-- break list -->
+
 ```mermaid
 graph LR
     Input("Packet In") --> Route{Router}
@@ -150,7 +156,9 @@ TCD utilizes the best available method for each codec:
     * **M17 (Codec2)**: Fully open-source, handled natively in software via the `codec2` library.
     * **Software AMBE**: Supports software-based decoding (via `md380_vocoder`) when hardware is unavailable, for compatible modes.
 
-* **Flow**: URFD receives a packet (e.g., M17) -> Sends to TCD -> TCD converts (Software Decode -> Hardware Encode) -> Returns packet (e.g., DMR) -> URFD processes it.
+**Flow**: URFD receives a packet (e.g., M17) -> Sends to TCD -> TCD converts (Software Decode -> Hardware Encode) -> Returns packet (e.g., DMR) -> URFD processes it.
+
+<!-- break list -->
 
 ```mermaid
 sequenceDiagram
@@ -185,6 +193,8 @@ URFD publishes events to the dashboard.
 4. **Playback**:
     * **Live Mode**: Dashboard Frontend receives WebSocket event -> Auto-plays the new file.
     * **History**: User clicks "Play" -> Dashboard serves file from shared volume.
+
+<!-- break list -->
 
 ```mermaid
 sequenceDiagram
