@@ -135,8 +135,6 @@ graph LR
     Recorder -->|Save| Disk[/"Disk Storage"/]
 ```
 
-```
-
 ---
 
 ## 4. Transcoding (TCD)
