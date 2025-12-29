@@ -25,27 +25,27 @@ URFD acts as a **Universal Translator and Meeting Point**.
 * **Unified Dashboard**: It provides a single view of all activity, regardless of the source mode.
 
 ```mermaid
-graph LR
+graph LR;
     subgraph "Fragmented Islands"
-        DMR((DMR Radio))
-        M17((M17 Radio))
-        YSF((YSF Radio))
-        P25((P25 Radio))
+        DMR(("DMR Radio"));
+        M17(("M17 Radio"));
+        YSF(("YSF Radio"));
+        P25(("P25 Radio"));
     end
 
     subgraph "URFD Bridge"
-        Reflector[URFD Reflector]
-        TCD[Transcoder]
+        Reflector["URFD Reflector"];
+        TCD["Transcoder"];
     end
 
-    DMR -- "AMBE+2" --> Reflector
-    M17 -- "Codec2" --> Reflector
-    YSF -- "AMBE+2" --> Reflector
-    P25 -- "IMBE" --> Reflector
+    DMR -->|"AMBE+2"| Reflector;
+    M17 -->|"Codec2"| Reflector;
+    YSF -->|"AMBE+2"| Reflector;
+    P25 -->|"IMBE"| Reflector;
     
-    Reflector <--> TCD
+    Reflector <--> TCD;
     
-    Note right of TCD: "Converts Audio\nSo everyone hears everyone"
+    Note right of TCD: Converts Audio so everyone hears everyone
 ```
 
 ---
@@ -66,37 +66,37 @@ They communicate via:
 
 ```mermaid
 graph TD
-    subgraph "Docker Host / RF Network"
-        Clients((Radio Clients)) -->|UDP Broadcast| URFD_Service
+    subgraph Docker Host / RF Network
+        Clients(("Radio Clients")) -->|"UDP Broadcast"| URFD_Service
     end
 
-    subgraph "Docker Composition"
-        subgraph "URFD Container"
-            URFD_Service[urfd Service]
-            AudioRec[Audio Recorder]
+    subgraph Docker Composition
+        subgraph URFD Container
+            URFD_Service["urfd Service"]
+            AudioRec["Audio Recorder"]
         end
 
-        subgraph "TCD Container"
-            TCD_Service[tcd Service]
+        subgraph TCD Container
+            TCD_Service["tcd Service"]
         end
 
-        subgraph "Dashboard Container"
-            Dash_Backend[Dashboard Backend (Go)]
-            Dash_Frontend[Vue.js Frontend]
+        subgraph Dashboard Container
+            Dash_Backend["Dashboard Backend (Go)"]
+            Dash_Frontend["Vue.js Frontend"]
         end
 
         %% IPC / Network
-        URFD_Service <-->|UDP Transcode Protocol| TCD_Service
-        URFD_Service -->|NNG Pub/Sub (Events)| Dash_Backend
+        URFD_Service <-->|"UDP Transcode Protocol"| TCD_Service
+        URFD_Service -->|"NNG Pub/Sub (Events)"| Dash_Backend
         
         %% Audio Pipeline
-        AudioRec -->|Writes .ogg| SharedVol[(Shared Audio Vol)]
-        SharedVol -->|Reads .ogg| Dash_Backend
+        AudioRec -->|"Writes .ogg"| SharedVol[("Shared Audio Vol")]
+        SharedVol -->|"Reads .ogg"| Dash_Backend
     end
 
     %% External Access
-    Dash_Backend -->|HTTP/WS| Browser((User Browser))
-    Browser -->|Live Audio| Speakers
+    Dash_Backend -->|"HTTP/WS"| Browser(("User Browser"))
+    Browser -->|"Live Audio"| Speakers
 ```
 
 ---
@@ -114,20 +114,22 @@ graph TD
 
 ```mermaid
 graph LR
-    Input(Packet In) --> Route{Router}
+    Input("Packet In") --> Route{Router}
     
-    Route -->|M17| M17[M17 Protocol]
-    Route -->|YSF| YSF[YSF Protocol]
-    Route -->|DMR| DMR[DMR Protocol]
+    Route -->|M17| M17["M17 Protocol"]
+    Route -->|YSF| YSF["YSF Protocol"]
+    Route -->|DMR| DMR["DMR Protocol"]
     
-    subgraph "Session Management"
-        M17 --> UserCheck{Valid User?}
-        UserCheck -->|Yes| Stream[Packet Stream]
-        Stream -->|Reflect| Output(Packet Out)
-        Stream -->|Audio| Recorder[Audio Recorder]
+    subgraph Session Management
+        M17 --> UserCheck{"Valid User?"}
+        UserCheck -->|Yes| Stream["Packet Stream"]
+        Stream -->|Reflect| Output("Packet Out")
+        Stream -->|Audio| Recorder["Audio Recorder"]
     end
     
-    Recorder -->|Save| Disk[/Disk Storage/]
+    Recorder -->|Save| Disk[/"Disk Storage"/]
+```
+
 ```
 
 ---
