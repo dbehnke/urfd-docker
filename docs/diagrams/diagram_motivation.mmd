@@ -1,0 +1,20 @@
+graph LR
+    subgraph Fragmented Islands
+        DMR((DMR Radio))
+        M17((M17 Radio))
+        YSF((YSF Radio))
+        P25((P25 Radio))
+    end
+
+    subgraph URFD Bridge
+        Reflector[URFD Reflector]
+        TCD[Transcoder]
+    end
+
+    DMR -->|"AMBE+2"| Reflector
+    M17 -->|"Codec2"| Reflector
+    YSF -->|"AMBE+2"| Reflector
+    P25 -->|"IMBE"| Reflector
+    
+    Reflector <--> TCD
+    TCD -.- Note["Converts Audio so everyone hears everyone"]

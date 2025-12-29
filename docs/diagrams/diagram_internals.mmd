@@ -1,0 +1,15 @@
+graph LR
+    Input("Packet In") --> Route{Router}
+    
+    Route -->|M17| M17["M17 Protocol"]
+    Route -->|YSF| YSF["YSF Protocol"]
+    Route -->|DMR| DMR["DMR Protocol"]
+    
+    subgraph Session Management
+        M17 --> UserCheck{"Valid User?"}
+        UserCheck -->|Yes| Stream["Packet Stream"]
+        Stream -->|Reflect| Output("Packet Out")
+        Stream -->|Audio| Recorder["Audio Recorder"]
+    end
+    
+    Recorder -->|Save| Disk[/"Disk Storage"/]

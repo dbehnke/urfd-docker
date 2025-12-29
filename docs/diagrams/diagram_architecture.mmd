@@ -1,0 +1,32 @@
+graph TD
+    subgraph Docker Host / RF Network
+        Clients(("Radio Clients")) -->|"UDP Broadcast"| URFD_Service
+    end
+
+    subgraph Docker Composition
+        subgraph URFD Container
+            URFD_Service["urfd Service"]
+            AudioRec["Audio Recorder"]
+        end
+
+        subgraph TCD Container
+            TCD_Service["tcd Service"]
+        end
+
+        subgraph Dashboard Container
+            Dash_Backend["Dashboard Backend (Go)"]
+            Dash_Frontend["Vue.js Frontend"]
+        end
+
+        %% IPC / Network
+        URFD_Service <-->|"UDP Transcode Protocol"| TCD_Service
+        URFD_Service -->|"NNG Pub/Sub (Events)"| Dash_Backend
+        
+        %% Audio Pipeline
+        AudioRec -->|"Writes .ogg"| SharedVol[("Shared Audio Vol")]
+        SharedVol -->|"Reads .ogg"| Dash_Backend
+    end
+
+    %% External Access
+    Dash_Backend -->|"HTTP/WS"| Browser(("User Browser"))
+    Browser -->|"Live Audio"| Speakers
