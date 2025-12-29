@@ -25,27 +25,26 @@ URFD acts as a **Universal Translator and Meeting Point**.
 * **Unified Dashboard**: It provides a single view of all activity, regardless of the source mode.
 
 ```mermaid
-graph LR;
-    subgraph "Fragmented Islands"
-        DMR(("DMR Radio"));
-        M17(("M17 Radio"));
-        YSF(("YSF Radio"));
-        P25(("P25 Radio"));
+graph LR
+    subgraph Fragmented Islands
+        DMR((DMR Radio))
+        M17((M17 Radio))
+        YSF((YSF Radio))
+        P25((P25 Radio))
     end
 
-    subgraph "URFD Bridge"
-        Reflector["URFD Reflector"];
-        TCD["Transcoder"];
+    subgraph URFD Bridge
+        Reflector[URFD Reflector]
+        TCD[Transcoder]
     end
 
-    DMR -->|"AMBE+2"| Reflector;
-    M17 -->|"Codec2"| Reflector;
-    YSF -->|"AMBE+2"| Reflector;
-    P25 -->|"IMBE"| Reflector;
+    DMR -->|"AMBE+2"| Reflector
+    M17 -->|"Codec2"| Reflector
+    YSF -->|"AMBE+2"| Reflector
+    P25 -->|"IMBE"| Reflector
     
-    Reflector <--> TCD;
-    
-    Note right of TCD: Converts Audio so everyone hears everyone
+    Reflector <--> TCD
+    TCD -.- Note["Converts Audio so everyone hears everyone"]
 ```
 
 ---
@@ -159,10 +158,10 @@ sequenceDiagram
     participant TCD
     
     URFD->>TCD: Packet (Source Format)
-    Note right of URFD: "M17 (Codec2) Packet"
+    Note right of URFD: M17 (Codec2) Packet
     TCD->>TCD: Decode -> PCM -> Encode
     TCD-->>URFD: Packet (Target Format)
-    Note left of TCD: "P25 (IMBE) or PCM"
+    Note left of TCD: P25 (IMBE) or PCM
 ```
 
 ---
@@ -197,9 +196,9 @@ sequenceDiagram
     participant Browser
     
     Radio->>URFD: RF Transmission Start
-    URFD->>NNG: PUB "HEARING" (Callsign)
+    URFD->>NNG: PUB HEARING (Callsign)
     NNG->>Dashboard: Event Received
-    Dashboard->>Browser: WS "HEARING" (Blink LED)
+    Dashboard->>Browser: WS HEARING (Blink LED)
     
     loop Stream
         Radio->>URFD: Audio Packets
@@ -208,9 +207,9 @@ sequenceDiagram
     
     Radio->>URFD: Transmission End
     URFD->>AudioDisk: Close File (1234.ogg)
-    URFD->>NNG: PUB "CLOSING" (File: 1234.ogg)
+    URFD->>NNG: PUB CLOSING (File: 1234.ogg)
     NNG->>Dashboard: Event Received
-    Dashboard->>Browser: WS "CLOSING" (New Track)
+    Dashboard->>Browser: WS CLOSING (New Track)
     
     Browser->>Dashboard: GET /audio/1234.ogg
     Dashboard->>Browser: Audio Stream

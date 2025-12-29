@@ -7,9 +7,9 @@ sequenceDiagram
     participant Browser
     
     Radio->>URFD: RF Transmission Start
-    URFD->>NNG: PUB "HEARING" (Callsign)
+    URFD->>NNG: PUB HEARING (Callsign)
     NNG->>Dashboard: Event Received
-    Dashboard->>Browser: WS "HEARING" (Blink LED)
+    Dashboard->>Browser: WS HEARING (Blink LED)
     
     loop Stream
         Radio->>URFD: Audio Packets
@@ -18,9 +18,9 @@ sequenceDiagram
     
     Radio->>URFD: Transmission End
     URFD->>AudioDisk: Close File (1234.ogg)
-    URFD->>NNG: PUB "CLOSING" (File: 1234.ogg)
+    URFD->>NNG: PUB CLOSING (File: 1234.ogg)
     NNG->>Dashboard: Event Received
-    Dashboard->>Browser: WS "CLOSING" (New Track)
+    Dashboard->>Browser: WS CLOSING (New Track)
     
     Browser->>Dashboard: GET /audio/1234.ogg
     Dashboard->>Browser: Audio Stream

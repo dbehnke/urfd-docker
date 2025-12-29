@@ -3,7 +3,7 @@ sequenceDiagram
     participant TCD
     
     URFD->>TCD: Packet (Source Format)
-    Note right of URFD: "M17 (Codec2) Packet"
+    Note right of URFD: M17 (Codec2) Packet
     TCD->>TCD: Decode -> PCM -> Encode
     TCD-->>URFD: Packet (Target Format)
-    Note left of TCD: "P25 (IMBE) or PCM"
+    Note left of TCD: P25 (IMBE) or PCM
