@@ -17,9 +17,13 @@ RUN apt-get update && apt-get install -y \
     python3 \
     golang-go \
     wget \
+    curl \
     xxd \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# Install go-task
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
 # Stage: vocoders
 # Assumes build context is urfd-dev (parent directory)
@@ -83,19 +87,32 @@ RUN make clean && make
 
 # Stage: frontend-builder
 FROM oven/bun:1 AS frontend-builder
+# Install go-task
+RUN apt-get update && apt-get install -y curl git && rm -rf /var/lib/apt/lists/* \
+    && sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
 WORKDIR /app
-COPY urfd-nng-dashboard/web ./web
-WORKDIR /app/web
-RUN bun install && bun run build
+COPY urfd-nng-dashboard ./urfd-nng-dashboard
+WORKDIR /app/urfd-nng-dashboard
+RUN task install-frontend && task build-frontend GIT_COMMIT=docker GIT_VERSION=docker
 
 # Stage: dashboard-builder
 FROM base-dev AS dashboard-builder
 WORKDIR /build/urfd-nng-dashboard
 COPY urfd-nng-dashboard /build/urfd-nng-dashboard
 WORKDIR /build/urfd-nng-dashboard
-# Copy built frontend assets to the expected location for embedding
-COPY --from=frontend-builder /app/web/dist internal/assets/dist
-RUN go build -o dashboard cmd/dashboard/main.go
+
+# Copy built frontend assets (Taskfile sync-assets expects web/dist or handles it? Check Taskfile)
+# Taskfile 'sync-assets' copies web/dist/* to internal/assets/dist/
+# In frontend-builder, we built in /app/urfd-nng-dashboard/web/dist
+# We need to copy that to /build/urfd-nng-dashboard/web/dist first, then run sync-assets?
+# Or just copy directly to internal/assets/dist?
+# Taskfile 'build-backend' depends on 'sync-assets'.
+# 'sync-assets' does: cp -r web/dist/* internal/assets/dist/
+# So we need web/dist to exist.
+
+COPY --from=frontend-builder /app/urfd-nng-dashboard/web/dist ./web/dist
+RUN task build-backend GIT_COMMIT=docker GIT_VERSION=docker
 # Stage: final
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
@@ -117,7 +134,7 @@ COPY --from=urfd-builder /build/urfd/reflector/urfd .
 COPY --from=urfd-builder /build/urfd/reflector/inicheck .
 COPY --from=urfd-builder /build/urfd/reflector/dbutil .
 COPY --from=urfd-builder /build/urfd/radmin .
-COPY --from=dashboard-builder /build/urfd-nng-dashboard/dashboard .
+COPY --from=dashboard-builder /build/urfd-nng-dashboard/urfd-dashboard ./dashboard
 
 # Ensure they are executable
 RUN chmod +x tcd urfd inicheck dbutil radmin dashboard
