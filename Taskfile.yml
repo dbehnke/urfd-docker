@@ -8,19 +8,19 @@ tasks:
   build:
     desc: Build Docker images with Git metadata
     cmds:
-      - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker-compose build {{.CLI_ARGS}}
+      - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker compose build {{.CLI_ARGS}}
 
   up:
     desc: Start Docker containers
     cmds:
-      - docker-compose up -d {{.CLI_ARGS}}
+      - docker compose up -d {{.CLI_ARGS}}
 
   down:
     desc: Stop Docker containers
     cmds:
-      - docker-compose down
+      - docker compose down
 
   logs:
     desc: View logs
     cmds:
-      - docker-compose logs -f {{.CLI_ARGS}}
+      - docker compose logs -f {{.CLI_ARGS}}
