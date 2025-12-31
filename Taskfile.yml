@@ -11,6 +11,9 @@ tasks:
                   - git submodule update --init --recursive
                   - git pull --recurse-submodules
       build:
+            # make sure to pull submodules first
+            deps:
+                  - pull
             desc: Build Docker images with Git metadata
             cmds:
                   - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker compose build {{.CLI_ARGS}}
