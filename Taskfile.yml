@@ -5,7 +5,15 @@ vars:
             sh: git -C urfd-nng-dashboard rev-parse HEAD || echo "HEAD"
 
 tasks:
+      pull:
+            desc: Pull and update submodules
+            cmds:
+                  - git submodule update --init --recursive
+                  - git pull --recurse-submodules
       build:
+            # make sure to pull submodules first
+            deps:
+                  - pull
             desc: Build Docker images with Git metadata
             cmds:
                   - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker compose build {{.CLI_ARGS}}
