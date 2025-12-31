@@ -101,6 +101,7 @@ RUN apt-get update && apt-get install -y curl git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=source-fetcher /src/web ./web
 COPY --from=source-fetcher /src/Taskfile.yml .
+COPY --from=source-fetcher /src/.git ./.git
 
 RUN task install-frontend && task build-frontend
 
@@ -108,7 +109,23 @@ RUN task install-frontend && task build-frontend
 FROM base-dev AS dashboard-builder
 WORKDIR /build/urfd-nng-dashboard
 COPY --from=source-fetcher /src /build/urfd-nng-dashboard
-WORKDIR /build/urfd-nng-dashboard
+# We copied the whole src, does it include .git?
+# git clone in source-fetcher creates .git.
+# COPY --from=source-fetcher /src ...
+# Docker COPY usually skips .git if excluded, but here we are copying from another stage directory.
+# Wait, COPY command does NOT automatically skip .git unless .dockerignore says so.
+# But source-fetcher has .git inside /src.
+# COPY --from=source-fetcher /src /build/urfd-nng-dashboard
+# This should copy everything, including .git.
+# So dashboard-builder might already have it?
+# Let's verify why dashboard-builder wasn't failing (or if it reached it).
+# The failure was in frontend-builder.
+# In frontend-builder, we explicitly copied only specific files.
+# In dashboard-builder, we copy `/src`.
+# I will NOT touch dashboard-builder if it seemingly copies everything.
+# I will only fix frontend-builder.
+# However, to be safe and explicit, I will verify if I need to do anything there.
+# I'll stick to fixing frontend-builder first.
 
 # Copy built frontend assets (Taskfile sync-assets expects web/dist or handles it? Check Taskfile)
 # Taskfile 'sync-assets' copies web/dist/* to internal/assets/dist/
