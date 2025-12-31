@@ -1,28 +1,26 @@
 version: "3"
 
 vars:
-  GIT_COMMIT:
-    sh: cd urfd-nng-dashboard && git rev-parse --short HEAD 2> /dev/null || echo "docker"
-  GIT_VERSION:
-    sh: cd urfd-nng-dashboard && git describe --tags --always --dirty --match "v*" 2> /dev/null | sed 's/-g\([0-9a-f]\{7,\}\)/-\1/' || echo "docker"
+      DASHBOARD_COMMIT:
+            sh: git -C urfd-nng-dashboard rev-parse HEAD || echo "HEAD"
 
 tasks:
-  build:
-    desc: Build Docker images with Git metadata
-    cmds:
-      - GIT_COMMIT="{{.GIT_COMMIT}}" GIT_VERSION="{{.GIT_VERSION}}" docker-compose build {{.CLI_ARGS}}
+      build:
+            desc: Build Docker images with Git metadata
+            cmds:
+                  - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker compose build {{.CLI_ARGS}}
 
-  up:
-    desc: Start Docker containers
-    cmds:
-      - docker-compose up -d {{.CLI_ARGS}}
+      up:
+            desc: Start Docker containers
+            cmds:
+                  - docker compose up -d {{.CLI_ARGS}}
 
-  down:
-    desc: Stop Docker containers
-    cmds:
-      - docker-compose down
+      down:
+            desc: Stop Docker containers
+            cmds:
+                  - docker compose down
 
-  logs:
-    desc: View logs
-    cmds:
-      - docker-compose logs -f {{.CLI_ARGS}}
+      logs:
+            desc: View logs
+            cmds:
+                  - docker compose logs -f {{.CLI_ARGS}}
