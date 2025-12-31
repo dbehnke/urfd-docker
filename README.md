@@ -1,6 +1,6 @@
 # urfd-docker
 
-Docker build environment for the Universal Multi-protocol Digital Voice Reflector (`urfd`) and the Transcoder (`tcd`), along with the necessary vocoder libraries.
+Docker build environment for the Universal Multi-protocol Digital Voice Reflector (`urfd`) and the Transcoder (`tcd`), along with various vocoder libraries and the `urfd-nng-dashboard`.
 
 ## Overview
 
@@ -10,19 +10,21 @@ This repository provides a multi-stage Dockerfile that compiles and packages:
 2. **md380_vocoder_dynarmic** (software AMBE vocoder emulator)
 3. **tcd** (Transcoder)
 4. **urfd** (Universal Reflector)
-5. **urfd-nng-dashboard** (Web Dashboard)
+5. **urfd-nng-dashboard** (Web Dashboard - Frontend & Backend)
 
-The final image is based on Ubuntu 24.04 and includes all necessary runtime dependencies (`libnng`, `libcurl`, `OpenDHT`, etc.).
+The final image is based on **Ubuntu 24.04** and includes all necessary runtime libraries.
 
 ## Prerequisites
 
-- Docker
-- Git
-- Access to the source repositories for `urfd`, `tcd`, `imbe_vocoder`, and `md380_vocoder_dynarmic` in the parent directory.
+- **Docker**
+- **Go-Task** (for orchestrating the build on host)
+  - Host machine installation:
+
+        ```bash
+        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+        ```
 
 ## Directory Structure
-
-This repository uses git submodules for `urfd`, `tcd`, and vocoders.
 
 ```text
 urfd-docker/           <-- You are here
@@ -32,6 +34,7 @@ urfd-docker/           <-- You are here
 ├── urfd/              (submodule)
 ├── urfd-nng-dashboard/ (submodule)
 ├── Dockerfile
+├── Taskfile.yml       <-- Entry point
 ├── docker-compose.yml
 ├── tcd.mk
 └── README.md
@@ -39,7 +42,7 @@ urfd-docker/           <-- You are here
 
 ## Setup
 
-When cloning this repository, ensure you initialize submodules:
+Initialize submodules:
 
 ```bash
 git clone --recurse-submodules https://github.com/dbehnke/urfd-docker.git
@@ -52,36 +55,60 @@ Or if already cloned:
 git submodule update --init --recursive
 ```
 
-## Building the Image
+## Build Process
 
-Build the image from the **urfd-docker directory**:
+We use a **Taskfile** to orchestrate the build. This ensures that the Docker image is built with the correct versioning information derived from the `urfd-nng-dashboard` submodule.
+
+```mermaid
+graph TD
+    A[Developer] -->|Run task build| B(Host: Taskfile.yml)
+    B -->|Get Dashboard Submodule Commit| C[Git Metadata]
+    B -->|Pass DASHBOARD_COMMIT| D[Docker Compose]
+    D -->|Build Step| E[Dockerfile]
+    E -->|Source Fetcher Stage| F[Clone Dashboard Repo @ Commit]
+    F -->|Copy Source + .git| G[Frontend Builder]
+    F -->|Copy Source + .git| H[Dashboard Builder]
+    G -->|Run task build-frontend| I[Frontend Assets]
+    H -->|Run task build-backend| J[Backend Binary]
+    I -->|Copy Dist| J
+    J -->|Copy Binary| K[Final Image]
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style E fill:#bfb,stroke:#333
+```
+
+### Building the Image
+
+Run the build task from the root of the repository:
 
 ```bash
-docker build -t urfd-combined .
+task build
 ```
+
+This will:
+
+1. Verify/Retrieve the git commit of the currently checked-out `urfd-nng-dashboard` submodule.
+2. Pass this commit hash to Docker as a build argument.
+3. Execute `docker compose build`.
 
 ## Running the Stack
 
-A `docker-compose.yml` file is provided to orchestrate `urfd` and `tcd`. It uses host networking to ensure proper UDP port handling for reflector protocols.
+To start the services (urfd, tcd, and dashboard):
 
-1. Navigate to this directory:
+```bash
+task up
+```
 
-    ```bash
-    cd urfd-docker
-    ```
+To stop:
 
-2. Start the services:
-
-    ```bash
-    docker-compose up
-    ```
+```bash
+task down
+```
 
 ### Configuration
 
-The `docker-compose.yml` expects configuration files to be present in a `./config` directory (relative to `docker-compose.yml`) or creates a volume. You may need to adjust the volume mappings in `docker-compose.yml` to point to your actual `config/` directory containing `urfd.ini`, `urfd.interlink`, etc.
+Configuration files are expected in the `./config` directory. The `docker-compose.yml` mounts this directory to the containers.
 
-## Details
+## Development Notes
 
-- **Dependencies**: The build installs `libboost-all-dev`, `nlohmann-json3-dev`, `libfmt-dev`, `libnng-dev`, `libcurl4-gnutls-dev`, and `libopendht-dev`.
-- **Symlink Resolution**: The Dockerfile copies the `urfd` source tree into the `tcd` build stage to resolve symlinks like `TCPacketDef.h`.
-- **Stale Objects**: The build process automatically runs `make clean` to ensure that stale host object files do not interfere with the container build.
+The build process for the dashboard employs a "source-fetcher" strategy. Even though we have the submodule checked out locally, we clone the repository again inside the Docker container at the specific commit hash. This ensures that the build context inside Docker has a valid `.git` directory, which is required for the `task build` commands to generate accurate version strings (`git describe`).
