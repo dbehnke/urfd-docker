@@ -25,6 +25,13 @@ RUN apt-get update && apt-get install -y \
 # Install go-task
 RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
+# Stage: source-fetcher
+FROM alpine/git AS source-fetcher
+ARG DASHBOARD_COMMIT
+WORKDIR /src
+RUN git clone https://github.com/dbehnke/urfd-nng-dashboard.git . && \
+    git checkout ${DASHBOARD_COMMIT}
+
 # Stage: vocoders
 # Assumes build context is urfd-dev (parent directory)
 FROM base-dev AS vocoders
@@ -92,14 +99,15 @@ RUN apt-get update && apt-get install -y curl git && rm -rf /var/lib/apt/lists/*
     && sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
 WORKDIR /app
-COPY urfd-nng-dashboard ./urfd-nng-dashboard
-WORKDIR /app/urfd-nng-dashboard
-RUN task install-frontend && task build-frontend GIT_COMMIT=docker GIT_VERSION=docker
+COPY --from=source-fetcher /src/web ./web
+COPY --from=source-fetcher /src/Taskfile.yml .
+
+RUN task install-frontend && task build-frontend
 
 # Stage: dashboard-builder
 FROM base-dev AS dashboard-builder
 WORKDIR /build/urfd-nng-dashboard
-COPY urfd-nng-dashboard /build/urfd-nng-dashboard
+COPY --from=source-fetcher /src /build/urfd-nng-dashboard
 WORKDIR /build/urfd-nng-dashboard
 
 # Copy built frontend assets (Taskfile sync-assets expects web/dist or handles it? Check Taskfile)
@@ -111,8 +119,8 @@ WORKDIR /build/urfd-nng-dashboard
 # 'sync-assets' does: cp -r web/dist/* internal/assets/dist/
 # So we need web/dist to exist.
 
-COPY --from=frontend-builder /app/urfd-nng-dashboard/web/dist ./web/dist
-RUN task build-backend GIT_COMMIT=docker GIT_VERSION=docker
+COPY --from=frontend-builder /app/web/dist ./web/dist
+RUN task build-backend
 # Stage: final
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
