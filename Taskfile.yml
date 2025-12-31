@@ -1,26 +1,26 @@
 version: "3"
 
 vars:
-  DASHBOARD_COMMIT:
-    sh: git -C urfd-nng-dashboard rev-parse HEAD || echo "HEAD"
+      DASHBOARD_COMMIT:
+            sh: git -C urfd-nng-dashboard rev-parse HEAD || echo "HEAD"
 
 tasks:
-  build:
-    desc: Build Docker images with Git metadata
-    cmds:
-      - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker compose build {{.CLI_ARGS}}
+      build:
+            desc: Build Docker images with Git metadata
+            cmds:
+                  - DASHBOARD_COMMIT="{{.DASHBOARD_COMMIT}}" docker compose build {{.CLI_ARGS}}
 
-  up:
-    desc: Start Docker containers
-    cmds:
-      - docker compose up -d {{.CLI_ARGS}}
+      up:
+            desc: Start Docker containers
+            cmds:
+                  - docker compose up -d {{.CLI_ARGS}}
 
-  down:
-    desc: Stop Docker containers
-    cmds:
-      - docker compose down
+      down:
+            desc: Stop Docker containers
+            cmds:
+                  - docker compose down
 
-  logs:
-    desc: View logs
-    cmds:
-      - docker compose logs -f {{.CLI_ARGS}}
+      logs:
+            desc: View logs
+            cmds:
+                  - docker compose logs -f {{.CLI_ARGS}}
