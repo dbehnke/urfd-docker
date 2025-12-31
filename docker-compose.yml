@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        GIT_COMMIT: ${GIT_COMMIT:-docker}
+        GIT_VERSION: ${GIT_VERSION:-docker}
     image: urfd-combined
     container_name: urfd
     command: urfd
