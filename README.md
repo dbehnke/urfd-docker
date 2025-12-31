@@ -65,13 +65,26 @@ graph TD
     B -->|Get Dashboard Submodule Commit| C[Git Metadata]
     B -->|Pass DASHBOARD_COMMIT| D[Docker Compose]
     D -->|Build Step| E[Dockerfile]
+
+    subgraph "Dashboard Build (Taskfile)"
     E -->|Source Fetcher Stage| F[Clone Dashboard Repo @ Commit]
     F -->|Copy Source + .git| G[Frontend Builder]
     F -->|Copy Source + .git| H[Dashboard Builder]
     G -->|Run task build-frontend| I[Frontend Assets]
     H -->|Run task build-backend| J[Backend Binary]
     I -->|Copy Dist| J
+    end
+
+    subgraph "Legacy Build (Make)"
+    E -->|Vocoder Builder| L[Build Vocoders]
+    E -->|URFD Builder| M[Make URFD]
+    E -->|TCD Builder| N[Make TCD]
+    end
+
     J -->|Copy Binary| K[Final Image]
+    M -->|Copy Binary| K
+    N -->|Copy Binary| K
+
     style A fill:#f9f,stroke:#333
     style B fill:#bbf,stroke:#333
     style E fill:#bfb,stroke:#333
@@ -111,4 +124,7 @@ Configuration files are expected in the `./config` directory. The `docker-compos
 
 ## Development Notes
 
-The build process for the dashboard employs a "source-fetcher" strategy. Even though we have the submodule checked out locally, we clone the repository again inside the Docker container at the specific commit hash. This ensures that the build context inside Docker has a valid `.git` directory, which is required for the `task build` commands to generate accurate version strings (`git describe`).
+### Build Strategies
+
+- **Dashboard**: Employs a "source-fetcher" strategy. The repo is cloned inside Docker at the specific commit hash to ensure `Taskfile` can generate accurate version strings using `git describe`.
+- **URFD & TCD**: These components are built using their traditional `Makefile` systems within their respective Docker builder stages (`urfd-builder` and `tcd-builder`).
