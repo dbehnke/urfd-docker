@@ -1,0 +1,156 @@
+task: [build] DASHBOARD_COMMIT="e7345cdde0b86176bf7f531ff2f6ed51a5ef237a" docker compose build 
+ Image urfd-combined Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 639B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 5.70kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/oven/bun:1
+#3 ...
+
+#4 [internal] load metadata for docker.io/alpine/git:latest
+#4 DONE 0.2s
+
+#3 [internal] load metadata for docker.io/oven/bun:1
+#3 DONE 0.2s
+
+#5 [internal] load metadata for docker.io/library/ubuntu:24.04
+#5 DONE 0.2s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 2B done
+#6 DONE 0.0s
+
+#7 [source-fetcher 1/3] FROM docker.io/alpine/git:latest@sha256:d86f367afb53d022acc4377741e7334bc20add161bb10234272b91b459b4b7d8
+#7 resolve docker.io/alpine/git:latest@sha256:d86f367afb53d022acc4377741e7334bc20add161bb10234272b91b459b4b7d8 0.0s done
+#7 DONE 0.0s
+
+#8 [base-dev 1/3] FROM docker.io/library/ubuntu:24.04@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
+#8 resolve docker.io/library/ubuntu:24.04@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54 0.0s done
+#8 DONE 0.0s
+
+#9 [frontend-builder 1/7] FROM docker.io/oven/bun:1@sha256:e90cdbaf9ccdb3d4bd693aa335c3310a6004286a880f62f79b18f9b1312a8ec3
+#9 resolve docker.io/oven/bun:1@sha256:e90cdbaf9ccdb3d4bd693aa335c3310a6004286a880f62f79b18f9b1312a8ec3 0.0s done
+#9 DONE 0.0s
+
+#10 [source-fetcher 2/3] WORKDIR /src
+#10 CACHED
+
+#11 [source-fetcher 3/3] RUN git clone https://github.com/dbehnke/urfd-nng-dashboard.git . &&     git checkout e7345cdde0b86176bf7f531ff2f6ed51a5ef237a
+#11 CACHED
+
+#12 [frontend-builder 2/7] RUN apt-get update && apt-get install -y curl git && rm -rf /var/lib/apt/lists/*     && sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+#12 CACHED
+
+#13 [frontend-builder 3/7] WORKDIR /app
+#13 CACHED
+
+#14 [frontend-builder 4/7] COPY --from=source-fetcher /src/web ./web
+#14 CACHED
+
+#15 [frontend-builder 5/7] COPY --from=source-fetcher /src/Taskfile.yml .
+#15 CACHED
+
+#16 [base-dev 2/3] RUN apt-get update && apt-get install -y     build-essential     cmake     git     libnng-dev     libcurl4-gnutls-dev     libopendht-dev     libboost-all-dev     nlohmann-json3-dev     libfmt-dev     libopus-dev     libogg-dev     unzip     python3     golang-go     wget     curl     xxd     ca-certificates     && rm -rf /var/lib/apt/lists/*
+#16 CACHED
+
+#17 [base-dev 3/3] RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+#17 CACHED
+
+#18 [dashboard-builder 1/4] WORKDIR /build/urfd-nng-dashboard
+#18 CACHED
+
+#19 [frontend-builder 6/7] COPY --from=source-fetcher /src/.git ./.git
+#19 CACHED
+
+#20 [dashboard-builder 2/4] COPY --from=source-fetcher /src /build/urfd-nng-dashboard
+#20 CACHED
+
+#21 [internal] load build context
+#21 transferring context: 30.54kB 0.0s done
+#21 DONE 0.0s
+
+#22 [frontend-builder 7/7] RUN task install-frontend && task build-frontend
+#22 0.152 task: [install-frontend] cd web && bun install
+#22 0.155 bun install v1.3.5 (1e86cebd)
+#22 137.9 
+#22 137.9 + @types/node@24.10.4
+#22 137.9 + @vitejs/plugin-vue@6.0.3
+#22 137.9 + @vue/tsconfig@0.8.1
+#22 137.9 + typescript@5.9.3
+#22 137.9 + vite@7.3.0
+#22 137.9 + vue-tsc@3.2.1
+#22 137.9 + @tailwindcss/vite@4.1.18
+#22 137.9 + lucide-vue-next@0.562.0
+#22 137.9 + pinia@3.0.4
+#22 137.9 + tailwindcss@4.1.18
+#22 137.9 + vue@3.5.26
+#22 137.9 + vue-router@4.6.4
+#22 137.9 
+#22 137.9 82 packages installed [137.71s]
+#22 137.9 task: [build-frontend] cd web && bun run build
+#22 137.9 $ vue-tsc -b && vite build
+#22 139.4 vite v7.3.0 building client environment for production...
+#22 139.5 transforming...
+#22 140.3 ✓ 1731 modules transformed.
+#22 140.3 ✗ Build failed in 883ms
+#22 140.3 error during build:
+#22 140.3 [vite:vue] [vue/compiler-sfc] Identifier 'isCurrent' has already been declared. (22:14)
+#22 140.3 
+#22 140.3 /app/web/src/components/AudioPlayer/Timeline.vue
+#22 140.3 20 |          const width = Math.max(MIN_BLOCK_WIDTH, track.duration * PIXELS_PER_SECOND)
+#22 140.3 21 |          const isCurrent = player.currentTrack?.id === track.id
+#22 140.3 22 |          const isCurrent = player.currentTrack?.id === track.id
+#22 140.3    |                ^
+#22 140.3 23 |          // Wait, if playing Index K. 
+#22 140.3 24 |          // Oldest is Index N. 
+#22 140.3 file: /app/web/src/components/AudioPlayer/Timeline.vue:22:14
+#22 140.3     at <parse> (:0)
+#22 140.3     at constructor (/app/web/node_modules/@babel/parser/lib/index.js:367:23)
+#22 140.3     at raise (/app/web/node_modules/@babel/parser/lib/index.js:6624:19)
+#22 140.3     at checkRedeclarationInScope (/app/web/node_modules/@babel/parser/lib/index.js:1646:19)
+#22 140.3     at declareName (/app/web/node_modules/@babel/parser/lib/index.js:1612:12)
+#22 140.3     at declareName (/app/web/node_modules/@babel/parser/lib/index.js:4909:11)
+#22 140.3     at declareNameFromIdentifier (/app/web/node_modules/@babel/parser/lib/index.js:7594:16)
+#22 140.3     at checkIdentifier (/app/web/node_modules/@babel/parser/lib/index.js:7590:12)
+#22 140.3     at checkLVal (/app/web/node_modules/@babel/parser/lib/index.js:7527:12)
+#22 140.3     at parseVarId (/app/web/node_modules/@babel/parser/lib/index.js:13488:10)
+#22 140.3     at parseVarId (/app/web/node_modules/@babel/parser/lib/index.js:9805:11)
+#22 140.3 error: script "build" exited with code 1
+#22 140.3 task: Failed to run task "build-frontend": exit status 1
+#22 ERROR: process "/bin/sh -c task install-frontend && task build-frontend" did not complete successfully: exit code: 201
+------
+ > [frontend-builder 7/7] RUN task install-frontend && task build-frontend:
+140.3     at checkRedeclarationInScope (/app/web/node_modules/@babel/parser/lib/index.js:1646:19)
+140.3     at declareName (/app/web/node_modules/@babel/parser/lib/index.js:1612:12)
+140.3     at declareName (/app/web/node_modules/@babel/parser/lib/index.js:4909:11)
+140.3     at declareNameFromIdentifier (/app/web/node_modules/@babel/parser/lib/index.js:7594:16)
+140.3     at checkIdentifier (/app/web/node_modules/@babel/parser/lib/index.js:7590:12)
+140.3     at checkLVal (/app/web/node_modules/@babel/parser/lib/index.js:7527:12)
+140.3     at parseVarId (/app/web/node_modules/@babel/parser/lib/index.js:13488:10)
+140.3     at parseVarId (/app/web/node_modules/@babel/parser/lib/index.js:9805:11)
+140.3 error: script "build" exited with code 1
+140.3 task: Failed to run task "build-frontend": exit status 1
+------
+Dockerfile:106
+
+--------------------
+
+ 104 |     COPY --from=source-fetcher /src/.git ./.git
+
+ 105 |     
+
+ 106 | >>> RUN task install-frontend && task build-frontend
+
+ 107 |     
+
+ 108 |     # Stage: dashboard-builder
+
+--------------------
+
+failed to solve: process "/bin/sh -c task install-frontend && task build-frontend" did not complete successfully: exit code: 201
+
+task: Failed to run task "build": exit status 1
