@@ -81,7 +81,7 @@ COPY --from=vocoders /usr/local/include/md380_vocoder.h /usr/local/include/
 
 
 WORKDIR /build/tcd
-RUN sed -i 's/-lmd380_vocoder/-lmd380_vocoder -lfmt/g' Makefile && make clean && make
+RUN sed -i 's/-lmd380_vocoder/-lmd380_vocoder -lfmt/g' Makefile && make clean && make swmodes=true
 
 # Stage: urfd-builder
 FROM base-dev AS urfd-builder
